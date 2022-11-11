@@ -1,0 +1,56 @@
+.btn {
+  text-align: center;
+  user-select: none;
+  font-size: 1rem;
+  line-height: 1.5;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+}
+
+.btn:hover {
+  text-decoration: none;
+}
+
+.btn:not(:disabled):not(.disabled) {
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: .65;
+}
+
+.btn-success {
+  color: #fff;
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+.btn-success:disabled {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.send-email {
+  padding: 0.5rem 1rem;
+}
+
+.text-success {
+  color: #18181b;
+}
+
+.text-error {
+  color: #ef4444;
+}
+
+.submit-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}

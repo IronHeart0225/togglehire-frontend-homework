@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import Spinner from './components/spinner/Spinner';
+import DragDropFile from './components/dragdrop/DragDropFile';
 import * as API from './api/API';
+import './App.css';
 
 const App = () => {
-  const [files, setFiles] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [fileEmails, setFileEmails] = useState([]);
-  const [status, setStatus] = useState('');
+  const [sendStatus, setSendStatus] = useState('');
   const [errorEmails, setErrorEmails] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [reset, setReset] = useState(false);
 
-  const onSelectFiles = (e) => {
-    setStatus('');
-    setFiles(Array.from(e.target.files));
+  const onSelectFiles = (files) => {
+    setSendStatus('');
+    setSelectedFiles(files);
   }
 
   const handleFileChosen = async (file) => {
@@ -31,21 +34,22 @@ const App = () => {
       return fileContents?.split(/\r?\n/).filter(line => !!line);
     }));
     return results;
-  }  
+  }
 
   const onSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const results = await readAllFiles(files);
+    const results = await readAllFiles(selectedFiles);
     setFileEmails(results);
     const emails = results.flat();
     API.send(emails).then(res => {
       setLoading(false);
-      setStatus(res.error);
+      setSendStatus(res.error);
       if (res.error === 'success') {
         setErrorEmails([]);
-        setFiles([]);
+        setSelectedFiles([]);
         e.target.reset();
+        setReset(!reset);
       } else if (res.error === 'server_error') {
         setErrorEmails([]);
       } else {
@@ -56,37 +60,36 @@ const App = () => {
 
   return (
     <form onSubmit={onSubmit}>
-      <div>
-        <input
-          type="file"
-          accept=".txt"
-          multiple={true}
-          onChange={onSelectFiles}
-        />
+      <h1>Toggl Frontend Homework</h1>
+      <DragDropFile
+        onSelectFiles={onSelectFiles}
+        fileEmails={fileEmails}
+        disabled={loading}
+        reset={reset}
+      />
+      {/* <input
+        type="file"
+        accept=".txt"
+        multiple={true}
+        onChange={onSelectFiles}
+      /> */}
+      <div className="submit-group">
+        <button
+          type="submit"
+          className="btn btn-success send-email"
+          disabled={selectedFiles.length === 0 || loading}
+        >Send emails</button>
+        {loading && (
+          <Spinner />
+        )}
       </div>
-      {files.length > 0 && (
-        <ul>
-          {files.map((file, index) => (
-            <li key={`file-${file.name}`}>
-              {file.name} {fileEmails[index] ? `(${fileEmails[index].length} emails)` : ''}
-            </li>
-          ))}
-        </ul>
-      )}
-      <button
-        type="submit"
-        disabled={files.length === 0}
-      >Send emails</button>
-      {loading && (
-        <Spinner />
-      )}
-      {status === 'success' ? (
-        <p>Emails sent successfully!</p>
-      ) : status === 'server_error' ? (
-        <p>There was an error: server error!</p>
-      ) : status !== '' ? (
+      {sendStatus === 'success' ? (
+        <p className="text-success">Emails sent successfully!</p>
+      ) : sendStatus === 'server_error' ? (
+        <p className="text-error">There was an error: server error!</p>
+      ) : sendStatus !== '' ? (
         <div>
-          <p>There was an error: Failed to send emails to some addresses</p>
+          <p className="text-error">There was an error: Failed to send emails to some addresses</p>
           {errorEmails.length > 0 && (
             <ul>
               {errorEmails.map((email, index) => (

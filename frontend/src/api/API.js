@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:4500';
+const BASE_URL = 'https://toggl-hire-frontend-homework.onrender.com';
 
 export const send = async (emails) => {
   const url = `${BASE_URL}/api/send`
