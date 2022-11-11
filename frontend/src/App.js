@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import Spinner from './components/spinner/Spinner';
 import * as API from './api/API';
 
 const App = () => {
   const [files, setFiles] = useState([]);
+  const [fileEmails, setFileEmails] = useState([]);
   const [status, setStatus] = useState('');
-  const [errors, setErrors] = useState([]);
+  const [errorEmails, setErrorEmails] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const onSelectFiles = (e) => {
     setStatus('');
@@ -32,18 +35,21 @@ const App = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const results = await readAllFiles(files);
+    setFileEmails(results);
     const emails = results.flat();
     API.send(emails).then(res => {
+      setLoading(false);
       setStatus(res.error);
       if (res.error === 'success') {
-        setErrors([]);
+        setErrorEmails([]);
         setFiles([]);
         e.target.reset();
       } else if (res.error === 'server_error') {
-        setErrors([]);
+        setErrorEmails([]);
       } else {
-        setErrors(res.emails);
+        setErrorEmails(res.emails);
       }
     });
   }
@@ -60,9 +66,9 @@ const App = () => {
       </div>
       {files.length > 0 && (
         <ul>
-          {files.map(file => (
+          {files.map((file, index) => (
             <li key={`file-${file.name}`}>
-              {file.name}
+              {file.name} {fileEmails[index] ? `(${fileEmails[index].length} emails)` : ''}
             </li>
           ))}
         </ul>
@@ -71,6 +77,9 @@ const App = () => {
         type="submit"
         disabled={files.length === 0}
       >Send emails</button>
+      {loading && (
+        <Spinner />
+      )}
       {status === 'success' ? (
         <p>Emails sent successfully!</p>
       ) : status === 'server_error' ? (
@@ -78,10 +87,10 @@ const App = () => {
       ) : status !== '' ? (
         <div>
           <p>There was an error: Failed to send emails to some addresses</p>
-          {errors.length > 0 && (
+          {errorEmails.length > 0 && (
             <ul>
-              {errors.map((email, idx) => (
-                <li key={`email-${idx}`}>{email}</li>
+              {errorEmails.map((email, index) => (
+                <li key={`email-${index}`}>{email}</li>
               ))}
             </ul>
           )}
