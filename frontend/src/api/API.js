@@ -1,4 +1,4 @@
-const BASE_URL = 'https://toggl-hire-frontend-homework.onrender.com';
+const BASE_URL = 'https://toggl-hire-frontend-homework.onrender.com'
 
 export const send = async (emails) => {
   const url = `${BASE_URL}/api/send`
@@ -8,12 +8,12 @@ export const send = async (emails) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ emails }),
-  };
+  }
 
-  const response = await fetch(url, request);
+  const response = await fetch(url, request)
   if (response.status === 200) {
-    return { error: 'success' };
+    return { error: 'success' }
   } else {
-    return await response.json();
+    return await response.json()
   }
 }
